@@ -27,7 +27,7 @@ func newPool() *redis.Pool {
 // 生成连接池
 var Rc = &Rediscli{newPool()}
 
-//存储字段串到redis
+//SET String to redis
 func (rediscli *Rediscli) SetString(key string, v string) error {
 	// 从连接池里面获得一个连接
 	c := rediscli.pool.Get()
@@ -39,5 +39,20 @@ func (rediscli *Rediscli) SetString(key string, v string) error {
 	} else {
 		log.Print(err)
 		return err
+	}
+}
+
+//GET String from redis
+func (rediscli *Rediscli) GetString(key string) (v string, err error) {
+	// 从连接池里面获得一个连接
+	c := rediscli.pool.Get()
+	// 连接完关闭，其实没有关闭，是放回池里，也就是队列里面，等待下一个重用
+	defer c.Close()
+
+	if v, err = redis.String(c.Do("GET", key)); err != nil {
+		log.Print(err)
+		return nil, err
+	} else {
+		return v, err
 	}
 }
