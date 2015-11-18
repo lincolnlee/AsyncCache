@@ -42,6 +42,36 @@ func (rediscli *Rediscli) SetString(key string, v string) error {
 	}
 }
 
+//SET String to redis with expire time.Set the specified expire time, in milliseconds.
+func (rediscli *Rediscli) SetStringWithExpriePX(key string, v string, exprie int32) error {
+	// 从连接池里面获得一个连接
+	c := rediscli.pool.Get()
+	// 连接完关闭，其实没有关闭，是放回池里，也就是队列里面，等待下一个重用
+	defer c.Close()
+
+	if ok, err := redis.Bool(c.Do("SET", key, v, "PX", exprie)); ok {
+		return nil
+	} else {
+		log.Print(err)
+		return err
+	}
+}
+
+//SETNX Int32 to redis
+func (rediscli *Rediscli) SetNXInt(key string, v int32) error {
+	// 从连接池里面获得一个连接
+	c := rediscli.pool.Get()
+	// 连接完关闭，其实没有关闭，是放回池里，也就是队列里面，等待下一个重用
+	defer c.Close()
+
+	if ok, err := redis.Bool(c.Do("SETNX", key, v)); ok {
+		return nil
+	} else {
+		log.Print(err)
+		return err
+	}
+}
+
 //GET String from redis
 func (rediscli *Rediscli) GetString(key string) (v string, err error) {
 	// 从连接池里面获得一个连接
