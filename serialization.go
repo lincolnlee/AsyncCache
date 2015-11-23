@@ -1,4 +1,4 @@
-package serialization
+package async_cache
 
 import (
 	"gopkg.in/vmihailenco/msgpack.v2"
