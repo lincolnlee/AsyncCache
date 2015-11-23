@@ -1,4 +1,4 @@
-AsynchronousCacheSystem
+AsyncCache
 ===========
 
-A middleware program using golang
+An async Cache Middleware in golang
