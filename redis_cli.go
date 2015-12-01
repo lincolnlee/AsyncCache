@@ -73,7 +73,7 @@ func (rediscli *Rediscli) SetNXInt(key string, v int32) error {
 }
 
 //SET []byte to redis
-func (rediscli *Rediscli) SetByteSlice(key string, v []byte) error {
+func (rediscli *Rediscli) SetBytesSlice(key string, v []byte) error {
 	// 从连接池里面获得一个连接
 	c := rediscli.pool.Get()
 	// 连接完关闭，其实没有关闭，是放回池里，也就是队列里面，等待下一个重用
@@ -110,6 +110,21 @@ func (rediscli *Rediscli) GetString(key string) (v string, err error) {
 	defer c.Close()
 
 	if v, err = redis.String(c.Do("GET", key)); err != nil {
+		log.Print(err)
+		return nil, err
+	} else {
+		return v, err
+	}
+}
+
+//GET []byte from redis
+func (rediscli *Rediscli) GetBytesSlice(key string) (v []byte, err error) {
+	// 从连接池里面获得一个连接
+	c := rediscli.pool.Get()
+	// 连接完关闭，其实没有关闭，是放回池里，也就是队列里面，等待下一个重用
+	defer c.Close()
+
+	if v, err = redis.Bytes(c.Do("GET", key)); err != nil {
 		log.Print(err)
 		return nil, err
 	} else {
