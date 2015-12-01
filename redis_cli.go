@@ -24,13 +24,10 @@ func newPool() *redis.Pool {
 	}
 }
 
-// 生成连接池
-var Rc = &Rediscli{newPool()}
-
 //SET String to redis
-func (rediscli *Rediscli) SetString(key string, v string) error {
+func (this *Rediscli) SetString(key string, v string) error {
 	// 从连接池里面获得一个连接
-	c := rediscli.pool.Get()
+	c := this.pool.Get()
 	// 连接完关闭，其实没有关闭，是放回池里，也就是队列里面，等待下一个重用
 	defer c.Close()
 
@@ -43,9 +40,9 @@ func (rediscli *Rediscli) SetString(key string, v string) error {
 }
 
 //SET String to redis with expire time.Set the specified expire time, in milliseconds.
-func (rediscli *Rediscli) SetStringWithExpriePX(key string, v string, exprie int32) error {
+func (this *Rediscli) SetStringWithExpriePX(key string, v string, exprie int32) error {
 	// 从连接池里面获得一个连接
-	c := rediscli.pool.Get()
+	c := this.pool.Get()
 	// 连接完关闭，其实没有关闭，是放回池里，也就是队列里面，等待下一个重用
 	defer c.Close()
 
@@ -58,9 +55,9 @@ func (rediscli *Rediscli) SetStringWithExpriePX(key string, v string, exprie int
 }
 
 //SETNX Int32 to redis
-func (rediscli *Rediscli) SetNXInt(key string, v int32) error {
+func (this *Rediscli) SetNXInt(key string, v int32) error {
 	// 从连接池里面获得一个连接
-	c := rediscli.pool.Get()
+	c := this.pool.Get()
 	// 连接完关闭，其实没有关闭，是放回池里，也就是队列里面，等待下一个重用
 	defer c.Close()
 
@@ -73,9 +70,9 @@ func (rediscli *Rediscli) SetNXInt(key string, v int32) error {
 }
 
 //SET []byte to redis
-func (rediscli *Rediscli) SetBytesSlice(key string, v []byte) error {
+func (this *Rediscli) SetBytesSlice(key string, v []byte) error {
 	// 从连接池里面获得一个连接
-	c := rediscli.pool.Get()
+	c := this.pool.Get()
 	// 连接完关闭，其实没有关闭，是放回池里，也就是队列里面，等待下一个重用
 	defer c.Close()
 
@@ -88,9 +85,9 @@ func (rediscli *Rediscli) SetBytesSlice(key string, v []byte) error {
 }
 
 //SET interface{} to redis
-func (rediscli *Rediscli) SetInterface(key string, v interface{}) error {
+func (this *Rediscli) SetInterface(key string, v interface{}) error {
 	// 从连接池里面获得一个连接
-	c := rediscli.pool.Get()
+	c := this.pool.Get()
 	// 连接完关闭，其实没有关闭，是放回池里，也就是队列里面，等待下一个重用
 	defer c.Close()
 
@@ -103,9 +100,9 @@ func (rediscli *Rediscli) SetInterface(key string, v interface{}) error {
 }
 
 //GET String from redis
-func (rediscli *Rediscli) GetString(key string) (v string, err error) {
+func (this *Rediscli) GetString(key string) (v string, err error) {
 	// 从连接池里面获得一个连接
-	c := rediscli.pool.Get()
+	c := this.pool.Get()
 	// 连接完关闭，其实没有关闭，是放回池里，也就是队列里面，等待下一个重用
 	defer c.Close()
 
@@ -118,9 +115,9 @@ func (rediscli *Rediscli) GetString(key string) (v string, err error) {
 }
 
 //GET []byte from redis
-func (rediscli *Rediscli) GetBytesSlice(key string) (v []byte, err error) {
+func (this *Rediscli) GetBytesSlice(key string) (v []byte, err error) {
 	// 从连接池里面获得一个连接
-	c := rediscli.pool.Get()
+	c := this.pool.Get()
 	// 连接完关闭，其实没有关闭，是放回池里，也就是队列里面，等待下一个重用
 	defer c.Close()
 

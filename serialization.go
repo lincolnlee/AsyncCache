@@ -6,8 +6,6 @@ import (
 
 type Seria struct{}
 
-var Seri = &Seria{}
-
 func (*Seria) Serialize(v ...interface{}) []byte {
 	b, err := msgpack.Marshal(v)
 	if err != nil {
