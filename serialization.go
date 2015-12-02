@@ -1,12 +1,12 @@
-package async_cache
+package AsyncCache
 
 import (
 	"gopkg.in/vmihailenco/msgpack.v2"
 )
 
-type Seria struct{}
+type serializer struct{}
 
-func (*Seria) Serialize(v ...interface{}) []byte {
+func (*serializer) Serialize(v ...interface{}) []byte {
 	b, err := msgpack.Marshal(v)
 	if err != nil {
 		panic(err)
@@ -15,9 +15,9 @@ func (*Seria) Serialize(v ...interface{}) []byte {
 	return b
 }
 
-func (*Seria) DeserializeToSlice(b []byte) []interface{} {
+func (*serializer) DeserializeToSlice(b []byte) []interface{} {
 	var out []interface{}
-	err = msgpack.Unmarshal(b, &out)
+	err := msgpack.Unmarshal(b, &out)
 	if err != nil {
 		panic(err)
 	}

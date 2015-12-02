@@ -1,11 +1,13 @@
-package async_cache
+package AsyncCache
 
-type Container struct {
-	Serializer *Seria
-	Rediscli   *Rediscli
+type container struct {
+	serializer        *serializer
+	redisClient       *rediscli
+	AsyncCacheHandler *cacheHandler
 }
 
-var InstanceContainer Container = Container{
-	Serializer:  &Seria{},             //serialization.go
-	RedisClient: &Rediscli{newPool()}, // 生成Redis连接池 //redis_cli.go
+var InstanceContainer container = container{
+	serializer:        &serializer{},        //serialization.go
+	redisClient:       &rediscli{newPool()}, // 生成Redis连接池 //redis_cli.go
+	AsyncCacheHandler: &cacheHandler{},      //async_cache.go
 }

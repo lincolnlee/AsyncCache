@@ -1,11 +1,11 @@
-package async_cache
+package AsyncCache
 
 import (
 	"github.com/garyburd/redigo/redis"
 	"log"
 )
 
-type Rediscli struct {
+type rediscli struct {
 	pool *redis.Pool
 }
 
@@ -25,7 +25,7 @@ func newPool() *redis.Pool {
 }
 
 //SET String to redis
-func (this *Rediscli) SetString(key string, v string) error {
+func (this *rediscli) SetString(key string, v string) error {
 	// 从连接池里面获得一个连接
 	c := this.pool.Get()
 	// 连接完关闭，其实没有关闭，是放回池里，也就是队列里面，等待下一个重用
@@ -40,7 +40,7 @@ func (this *Rediscli) SetString(key string, v string) error {
 }
 
 //SET String to redis with expire time.Set the specified expire time, in milliseconds.
-func (this *Rediscli) SetStringWithExpriePX(key string, v string, exprie int32) error {
+func (this *rediscli) SetStringWithExpriePX(key string, v string, exprie int32) error {
 	// 从连接池里面获得一个连接
 	c := this.pool.Get()
 	// 连接完关闭，其实没有关闭，是放回池里，也就是队列里面，等待下一个重用
@@ -55,7 +55,7 @@ func (this *Rediscli) SetStringWithExpriePX(key string, v string, exprie int32) 
 }
 
 //SETNX Int32 to redis
-func (this *Rediscli) SetNXInt(key string, v int32) error {
+func (this *rediscli) SetNXInt(key string, v int32) error {
 	// 从连接池里面获得一个连接
 	c := this.pool.Get()
 	// 连接完关闭，其实没有关闭，是放回池里，也就是队列里面，等待下一个重用
@@ -70,7 +70,7 @@ func (this *Rediscli) SetNXInt(key string, v int32) error {
 }
 
 //SET []byte to redis
-func (this *Rediscli) SetBytesSlice(key string, v []byte) error {
+func (this *rediscli) SetBytesSlice(key string, v []byte) error {
 	// 从连接池里面获得一个连接
 	c := this.pool.Get()
 	// 连接完关闭，其实没有关闭，是放回池里，也就是队列里面，等待下一个重用
@@ -85,7 +85,7 @@ func (this *Rediscli) SetBytesSlice(key string, v []byte) error {
 }
 
 //SET interface{} to redis
-func (this *Rediscli) SetInterface(key string, v interface{}) error {
+func (this *rediscli) SetInterface(key string, v interface{}) error {
 	// 从连接池里面获得一个连接
 	c := this.pool.Get()
 	// 连接完关闭，其实没有关闭，是放回池里，也就是队列里面，等待下一个重用
@@ -100,7 +100,7 @@ func (this *Rediscli) SetInterface(key string, v interface{}) error {
 }
 
 //GET String from redis
-func (this *Rediscli) GetString(key string) (v string, err error) {
+func (this *rediscli) GetString(key string) (v string, err error) {
 	// 从连接池里面获得一个连接
 	c := this.pool.Get()
 	// 连接完关闭，其实没有关闭，是放回池里，也就是队列里面，等待下一个重用
@@ -108,14 +108,14 @@ func (this *Rediscli) GetString(key string) (v string, err error) {
 
 	if v, err = redis.String(c.Do("GET", key)); err != nil {
 		log.Print(err)
-		return nil, err
+		return "nil", err
 	} else {
 		return v, err
 	}
 }
 
 //GET []byte from redis
-func (this *Rediscli) GetBytesSlice(key string) (v []byte, err error) {
+func (this *rediscli) GetBytesSlice(key string) (v []byte, err error) {
 	// 从连接池里面获得一个连接
 	c := this.pool.Get()
 	// 连接完关闭，其实没有关闭，是放回池里，也就是队列里面，等待下一个重用
