@@ -1,20 +1,21 @@
 package AsyncCache
 
 import (
+	"github.com/going/toolkit/to"
 	"log"
 	"time"
 )
 
 type cacheHandler struct{}
 
-func (*cacheHandler) AsyncGetAndUpdateData(f func() interface{}, key string) interface{} {
+func (this *cacheHandler) AsyncGetAndUpdateData(f func() interface{}, key string) interface{} {
 	var cacheValue interface{} = nil
 	if v, err := InstanceContainer.redisClient.GetBytesSlice(key); v != nil && err == nil {
 		iSlice := InstanceContainer.serializer.DeserializeToSlice(v)
 		if len(iSlice) == 2 {
 			cacheValue = iSlice[1]
-			if time.Now().Sub(Time(iSlice[0])).Minutes() > 5 {
-				go asyncDealCacheTask(f, key, cacheValue, true)
+			if time.Now().Sub(to.Time(iSlice[0])).Minutes() > 5 {
+				go this.asyncDealCacheTask(f, key, cacheValue, true)
 			}
 
 			return cacheValue
@@ -24,17 +25,17 @@ func (*cacheHandler) AsyncGetAndUpdateData(f func() interface{}, key string) int
 
 	}
 	cacheValue = f()
-	go asyncDealCacheTask(f, key, cacheValue, false)
+	go this.asyncDealCacheTask(f, key, cacheValue, false)
 	return cacheValue
 }
 
-func (*cacheHandler) asyncDealCacheTask(f func() interface{}, key string, v interface{}, isDoF bool) interface{} {
-	if getLock(key) {
+func (this *cacheHandler) asyncDealCacheTask(f func() interface{}, key string, v interface{}, isDoF bool) {
+	if this.getLock(key) {
 		var r interface{} = v
 		if isDoF {
 			r = f()
 		}
-		iSlice = []interface{}{time.Now(), r}
+		iSlice := []interface{}{time.Now(), r}
 		cacheData := InstanceContainer.serializer.Serialize(iSlice)
 		InstanceContainer.redisClient.SetBytesSliceWithExpriePX(key, cacheData, 300*1000)
 	}

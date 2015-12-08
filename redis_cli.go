@@ -151,7 +151,7 @@ func (this *rediscli) RemoveKey(key string) {
 	// 连接完关闭，其实没有关闭，是放回池里，也就是队列里面，等待下一个重用
 	defer c.Close()
 
-	if _, err = c.Do("DEL", key); err != nil {
+	if _, err := c.Do("DEL", key); err != nil {
 		log.Print(err)
 	}
 }
