@@ -55,17 +55,17 @@ func (this *rediscli) SetStringWithExpriePX(key string, v string, exprie int32) 
 }
 
 //SETNX Int32 to redis
-func (this *rediscli) SetNXInt(key string, v int32) error {
+func (this *rediscli) SetNXInt(key string, v int32) (bool, error) {
 	// 从连接池里面获得一个连接
 	c := this.pool.Get()
 	// 连接完关闭，其实没有关闭，是放回池里，也就是队列里面，等待下一个重用
 	defer c.Close()
 
 	if ok, err := redis.Bool(c.Do("SETNX", key, v)); ok {
-		return nil
+		return ok, err
 	} else {
 		log.Print(err)
-		return err
+		return false, err
 	}
 }
 
@@ -77,6 +77,21 @@ func (this *rediscli) SetBytesSlice(key string, v []byte) error {
 	defer c.Close()
 
 	if ok, err := redis.Bool(c.Do("SET", key, v)); ok {
+		return nil
+	} else {
+		log.Print(err)
+		return err
+	}
+}
+
+//SET []byte to redis with expire time.Set the specified expire time, in milliseconds.
+func (this *rediscli) SetBytesSliceWithExpriePX(key string, v []byte, exprie int32) error {
+	// 从连接池里面获得一个连接
+	c := this.pool.Get()
+	// 连接完关闭，其实没有关闭，是放回池里，也就是队列里面，等待下一个重用
+	defer c.Close()
+
+	if ok, err := redis.Bool(c.Do("SET", key, v, "PX", exprie)); ok {
 		return nil
 	} else {
 		log.Print(err)
@@ -126,5 +141,17 @@ func (this *rediscli) GetBytesSlice(key string) (v []byte, err error) {
 		return nil, err
 	} else {
 		return v, err
+	}
+}
+
+//Remove specified key
+func (this *rediscli) RemoveKey(key string) {
+	// 从连接池里面获得一个连接
+	c := this.pool.Get()
+	// 连接完关闭，其实没有关闭，是放回池里，也就是队列里面，等待下一个重用
+	defer c.Close()
+
+	if _, err = c.Do("DEL", key); err != nil {
+		log.Print(err)
 	}
 }
