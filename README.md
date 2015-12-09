@@ -20,7 +20,24 @@ import (
 )
 
 func main() {
-	AsyncCache.InstanceContainer.AsyncCacheHandler.AsyncGetAndUpdateData(f, key)
+	DoSomething()
+
+	AsyncCache.InstanceContainer.Exception.Try(
+		func() {
+			AsyncCache.InstanceContainer.AsyncCacheHandler.AsyncGetAndUpdateData(
+				func() interface{} {
+					return "Hello, World!"
+				},
+				"testKey")
+			panic("test error")
+		})
+
+	AsyncCache.InstanceContainer.Exception.Catch(
+		func(ex interface{}) {
+			fmt.Println("catch:", ex)
+		})
+
+	DoOtherThings()
 }
 
 ```
