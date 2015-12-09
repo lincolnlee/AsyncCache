@@ -2,7 +2,6 @@ package AsyncCache
 
 import (
 	"github.com/going/toolkit/to"
-	"log"
 	"time"
 )
 
@@ -21,7 +20,7 @@ func (this *cacheHandler) AsyncGetAndUpdateData(f func() interface{}, key string
 			return cacheValue
 		}
 	} else {
-		log.Println(err)
+		InstanceContainer.Loghelper.Logger.Error("error", err)
 
 	}
 	cacheValue = f()
