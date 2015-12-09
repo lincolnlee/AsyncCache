@@ -13,3 +13,7 @@ func newLogger() *logs.BeeLogger {
 	log.SetLogger("console", `{"level":6}`)
 	return log
 }
+
+func (this *loghelper) Error(err interface{}) {
+	this.Logger.Error("%v", err)
+}

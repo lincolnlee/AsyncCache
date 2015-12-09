@@ -20,7 +20,7 @@ func (this *cacheHandler) AsyncGetAndUpdateData(f func() interface{}, key string
 			return cacheValue
 		}
 	} else {
-		InstanceContainer.Loghelper.Logger.Error("error", err)
+		InstanceContainer.Loghelper.Error(err)
 
 	}
 	cacheValue = f()
