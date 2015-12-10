@@ -2,10 +2,15 @@ package AsyncCache
 
 import (
 	"github.com/going/toolkit/to"
+	"sync"
 	"time"
 )
 
-type cacheHandler struct{}
+type cacheHandler struct {
+	enabledCache bool
+	mutex        sync.Mutex
+	errAmount    int32
+}
 
 func (this *cacheHandler) AsyncGetAndUpdateData(f func() interface{}, key string) interface{} {
 	var cacheValue interface{} = nil
@@ -54,4 +59,17 @@ func (*cacheHandler) getLock(key string) bool {
 func (*cacheHandler) releaseLock(key string) {
 	lockKey := key + "_lock"
 	InstanceContainer.redisClient.RemoveKey(lockKey)
+}
+
+func (this *cacheHandler) healthDetect() {
+	this.errAmount++
+	if this.errAmount > 100 && this.enabledCache {
+		this.mutex.Lock()
+		if this.errAmount > 100 && this.enabledCache {
+			go func() {
+				this.enabledCache = true
+			}()
+		}
+	}
+
 }
