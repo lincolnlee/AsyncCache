@@ -16,19 +16,29 @@ func (this *cacheHandler) AsyncGetAndUpdateData(f func() interface{}, key string
 	var cacheValue interface{} = nil
 
 	if this.enabledCache && pEnabledCache {
-		if v, err := InstanceContainer.redisClient.GetBytesSlice(key); v != nil && err == nil {
-			iSlice := InstanceContainer.serializer.DeserializeToSlice(v)
-			if len(iSlice) == 2 {
-				cacheValue = iSlice[1]
-				if time.Now().Sub(to.Time(iSlice[0])).Minutes() > 5 {
-					go this.asyncDealCacheTask(f, key, cacheValue, true)
+		InstanceContainer.Exception.Try(
+			func() {
+				if v, err := InstanceContainer.redisClient.GetBytesSlice(key); v != nil && err == nil {
+					iSlice := InstanceContainer.serializer.DeserializeToSlice(v)
+					if len(iSlice) == 2 {
+						cacheValue = iSlice[1]
+						if time.Now().Sub(to.Time(iSlice[0])).Minutes() > 5 {
+							go this.asyncDealCacheTask(f, key, cacheValue, true)
+						}
+					}
+				} else {
+					InstanceContainer.Loghelper.Error(err)
+					this.healthDetect()
 				}
+			})
+		InstanceContainer.Exception.Catch(
+			func(ex interface{}) {
+				InstanceContainer.Loghelper.Error(ex)
+				this.healthDetect()
+			})
 
-				return cacheValue
-			}
-		} else {
-			InstanceContainer.Loghelper.Error(err)
-			this.healthDetect()
+		if cacheValue != nil {
+			return cacheValue
 		}
 	}
 
@@ -42,16 +52,24 @@ func (this *cacheHandler) AsyncGetAndUpdateData(f func() interface{}, key string
 }
 
 func (this *cacheHandler) asyncDealCacheTask(f func() interface{}, key string, v interface{}, isDoF bool) {
-	if this.getLock(key) {
-		var r interface{} = v
-		if isDoF {
-			r = f()
-		}
-		iSlice := []interface{}{time.Now(), r}
-		cacheData := InstanceContainer.serializer.Serialize(iSlice)
-		InstanceContainer.redisClient.SetBytesSliceWithExpriePX(key, cacheData, 300*1000)
-	}
-
+	InstanceContainer.Exception.Try(
+		func() {
+			if this.getLock(key) {
+				var r interface{} = v
+				if isDoF {
+					r = f()
+				}
+				iSlice := []interface{}{time.Now(), r}
+				cacheData := InstanceContainer.serializer.Serialize(iSlice)
+				InstanceContainer.redisClient.SetBytesSliceWithExpriePX(key, cacheData, 300*1000)
+				this.releaseLock(key)
+			}
+		})
+	InstanceContainer.Exception.Catch(
+		func(ex interface{}) {
+			InstanceContainer.Loghelper.Error(ex)
+			this.healthDetect()
+		})
 }
 
 func (*cacheHandler) getLock(key string) bool {
