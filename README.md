@@ -16,28 +16,50 @@ go get github.com/lincolnlee/AsyncCache
 package main
 
 import (
+	"database/sql"
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/lincolnlee/AsyncCache"
 )
 
 func main() {
 	DoSomething()
 
-	AsyncCache.InstanceContainer.Exception.Try(
-		func() {
-			AsyncCache.InstanceContainer.AsyncCacheHandler.AsyncGetAndUpdateData(
-				func() interface{} {
-					return "Hello, World!"
-				},
-				"testKey")
-			panic("test error")
-		})
-
-	AsyncCache.InstanceContainer.Exception.Catch(
-		func(ex interface{}) {
-			fmt.Println("catch:", ex)
-		})
+	u := getUser(1)
 
 	DoOtherThings()
+}
+
+func getUser(uid int) UserInfo {
+	key := "UserInfo_" + string(uid)
+
+	v := AsyncCache.InstanceContainer.AsyncCacheHandler.AsyncGetAndUpdateData(
+		func() interface{} {
+			return getUserDataFromDB(uid)
+		},
+		key)
+
+	return UserInfo(v)
+}
+
+func getUserDataFromDB(uid int) UserInfo {
+	db, _ := sql.Open("mysql", dbConnString)
+	defer db.Close()
+
+	rows, err := db.Query("SELECT id,username,age FROM users where id = ?", uid)
+	checkError(err)
+
+	var user UserInfo = nil
+
+	for rows.Next() {
+		var id int32
+		var username string
+		var age int32
+		_ = rows.Scan(&id, &username, &age)
+
+		user = UserInfo{id, username, age}
+	}
+
+	return user
 }
 
 ```
